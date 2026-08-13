@@ -12,9 +12,11 @@ export const getDashboard = asyncHandler(async (req, res) => {
   const endOfToday = new Date();
   endOfToday.setHours(23, 59, 59, 999);
   const lowStock = await Product.countDocuments({
-    createdBy: req.user._id,
-    quantity: { $lte: 5 },
-  });
+  createdBy: req.user._id,
+  $expr: {
+    $lte: ["$quantity", "$lowstockthreshold"],
+  },
+});
 
   const sales = await Bill.aggregate([
     {

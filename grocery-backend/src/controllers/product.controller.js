@@ -8,6 +8,9 @@ export const createProduct = asyncHandler(async (req,res) => {
     const {
         name,
         sellingprice,
+        unit,
+        costprice,
+        lowstockthreshold,
         quantity,
         category,
         barcode
@@ -24,6 +27,9 @@ export const createProduct = asyncHandler(async (req,res) => {
         name,
         sellingprice,
         category,
+        unit,
+        costprice,
+        lowstockthreshold,
         quantity,
         barcode,
         createdBy : req.user._id
@@ -54,27 +60,39 @@ return res.status(200).json(
 
 });
 
-export const getProduct = asyncHandler(async (req,res) => {
+export const getProduct = asyncHandler(async (req, res) => {
     const product = await Product.findOne({
         _id: req.params.id,
         createdBy: req.user._id
     });
 
-    if(!product){
-        throw new ApiError(404 , "Product not found ")
+    if (!product) {
+        throw new ApiError(404, "Product not found");
     }
+
+    const profit = product.sellingprice - product.costprice;
+
+    const margin = product.sellingprice > 0
+        ? (profit / product.sellingprice) * 100
+        : 0;
+
+    const productData = {
+        ...product.toObject(),
+        profit,
+        margin: Number(margin.toFixed(2))
+    };
 
     return res.status(200).json(
         new ApiResponse(
             200,
-            product,
+            productData,
             "Product fetched successfully"
         )
-    )
+    );
 });
 
 export const updateProduct = asyncHandler(async(req,res)=>{
-    const {name , sellingprice, quantity , category ,barcode} = req.body;
+    const {name , sellingprice, quantity , category ,barcode , costprice , unit , lowstockthreshold} = req.body;
 
     const product = await Product.findOne({
         _id: req.params.id,
@@ -87,6 +105,18 @@ export const updateProduct = asyncHandler(async(req,res)=>{
 
     if( name !== undefined){
         product.name = name
+    }
+
+    if( costprice !== undefined){
+        product.costprice = costprice
+    }
+
+    if( unit !== undefined){
+        product.unit = unit
+    }
+
+    if(  lowstockthreshold!== undefined){
+        product.lowstockthreshold = lowstockthreshold
     }
 
     if(sellingprice !== undefined){

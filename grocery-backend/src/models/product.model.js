@@ -14,15 +14,32 @@ const productSchema = new mongoose.Schema({
         required: true
     },
 
+    unit:{
+        type:String,
+        required:true
+    },
+
     sellingprice:{
         type: Number,
         required: true
+    },
+
+    costprice:{
+        type:Number,
+        required:true
     },
 
     quantity:{
         type: Number,
         required: true,
     },
+
+    lowstockthreshold:{
+        type:Number,
+        required:true,
+    },
+
+
     
     createdBy:{
         type: mongoose.Schema.Types.ObjectId,
