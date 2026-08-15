@@ -82,10 +82,36 @@ export const getProduct = asyncHandler(async (req, res) => {
         margin: Number(margin.toFixed(2))
     };
 
+     const totals = await Product.aggregate([
+        {
+            $match: {
+                createdBy: req.user._id
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                totalQuantity: {
+                    $sum: "$quantity"
+                },
+                totalCostPrice: {
+                    $sum: {
+                        $multiply: ["$costprice", "$quantity"]
+                    }
+                }
+            }
+        }
+    ]);
+
+
     return res.status(200).json(
         new ApiResponse(
             200,
+            {
             productData,
+            totalQuantity: totals[0]?.totalQuantity || 0,
+            totalCostPrice: totals[0]?.totalCostPrice || 0
+            },
             "Product fetched successfully"
         )
     );
