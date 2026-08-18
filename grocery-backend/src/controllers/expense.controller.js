@@ -4,7 +4,7 @@ import ApiResponse from "../utils/ApiResponse.js";
 import Expense from "../models/expense.model.js";
 
 export const createExpense = asyncHandler(async (req, res) => {
-  const { title, amount, category, date } = req.body;
+  const { title, amount, category, date , description  } = req.body;
 
   if (!title || amount === undefined || !category) {
     throw new ApiError(400, "Title, amount and category are required");
@@ -19,6 +19,7 @@ export const createExpense = asyncHandler(async (req, res) => {
     amount,
     category,
     date,
+    description,
     createdBy: req.user._id,
   });
 
@@ -28,13 +29,94 @@ export const createExpense = asyncHandler(async (req, res) => {
 });
 
 export const getExpenses = asyncHandler(async (req, res) => {
+   const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+
+  const endOfToday = new Date();
+  endOfToday.setHours(23, 59, 59, 999);
+  const Totalexpenses = await Expense.aggregate([
+      {
+        $match: {
+          createdBy: new mongoose.Types.ObjectId(req.user._id),
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalExpenses: {
+            $sum: "$amount",
+          },
+        },
+      },
+    ]);
+    const todayExpenses = await Expense.aggregate([
+        {
+          $match: {
+            createdBy: new mongoose.Types.ObjectId(req.user._id),
+            createdAt: {
+              $gte: startOfToday,
+              $lte: endOfToday,
+            },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            todayExpenses: {
+              $sum: "$amount",
+            },
+          },
+        },
+      ]);
+
+       const monthlyExpenses = await Expense.aggregate([
+        {
+          $match: {
+            createdBy: new mongoose.Types.ObjectId(req.user._id),
+          },
+        },
+        {
+          $group: {
+            _id: {
+              year: { $year: "$createdAt" },
+              month: { $month: "$createdAt" },
+            },
+            totalExpense: {
+              $sum: "$amount",
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            year: "$_id.year",
+            month: "$_id.month",
+            totalExpense: 1,
+          },
+        },
+        {
+          $sort: {
+            year: 1,
+            month: 1,
+          },
+        },
+      ]);
+
+    const totalExpenses = Totalexpenses.length > 0 ? Totalexpenses[0].totalExpenses : 0;
+    const todayExpensesAmount =
+    todayExpenses.length > 0 ? todayExpenses[0].todayExpenses : 0;
   const expenses = await Expense.find({
     createdBy: req.user._id,
   }).sort({ date: -1 });
 
   return res
     .status(200)
-    .json(new ApiResponse(200, expenses, "Expenses fetched successfully"));
+    .json(new ApiResponse(200, 
+      expenses,
+      totalExpenses,
+      todayExpensesAmount,
+      monthlyExpenses,
+       "Expenses fetched successfully"));
 });
 
 

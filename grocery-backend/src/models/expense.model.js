@@ -27,6 +27,11 @@ const expenseSchema = new mongoose.Schema(
       default: Date.now,
     },
 
+    description:{
+      type:String,
+      
+    },
+
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

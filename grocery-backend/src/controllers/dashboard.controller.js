@@ -89,6 +89,39 @@ export const getDashboard = asyncHandler(async (req, res) => {
       },
     },
   ]);
+
+  const monthlyExpenses = await Expense.aggregate([
+  {
+    $match: {
+      createdBy: new mongoose.Types.ObjectId(req.user._id),
+    },
+  },
+  {
+    $group: {
+      _id: {
+        year: { $year: "$createdAt" },
+        month: { $month: "$createdAt" },
+      },
+      totalExpense: {
+        $sum: "$amount",
+      },
+    },
+  },
+  {
+    $project: {
+      _id: 0,
+      year: "$_id.year",
+      month: "$_id.month",
+      totalExpense: 1,
+    },
+  },
+  {
+    $sort: {
+      year: 1,
+      month: 1,
+    },
+  },
+]);
   const totalSales = sales.length > 0 ? sales[0].totalSales : 0;
 
   const totalExpenses = expenses.length > 0 ? expenses[0].totalExpenses : 0;
@@ -109,6 +142,7 @@ export const getDashboard = asyncHandler(async (req, res) => {
         todaySales: todaySalesAmount,
         todayExpenses: todayExpensesAmount,
         lowStockProducts: lowStock,
+        monthlyExpenses
       },
       "Dashboard data fetched successfully",
     ),
