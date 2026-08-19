@@ -150,7 +150,7 @@ export const getExpense = asyncHandler(async (req,res) => {
 });
 
 export const updateExpense = asyncHandler(async (req, res) => {
-  const { title, amount, category, date } = req.body;
+  const { title, amount, category, date,description } = req.body;
 
   const expense = await Expense.findOne({
     _id: req.params.id,
