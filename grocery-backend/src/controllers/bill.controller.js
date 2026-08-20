@@ -4,6 +4,7 @@ import ApiResponse from "../utils/ApiResponse.js";
 import Bill from "../models/bill.model.js";
 import Product from "../models/product.model.js";
 import mongoose from "mongoose";
+import { generateBillNumber } from "../utils/generateBillNumber.js";
 
 export const createBill = asyncHandler(async (req, res) => {
   const session = await mongoose.startSession();
@@ -20,6 +21,7 @@ export const createBill = asyncHandler(async (req, res) => {
   if (!["cash", "upi"].includes(paymentMethod)) {
     throw new ApiError(400, "Invalid payment method");
   }
+  const billNumber = await generateBillNumber(session);
 
   const billItems = [];
 
@@ -64,6 +66,7 @@ export const createBill = asyncHandler(async (req, res) => {
     [
       {
         customerName,
+        billNumber,
         items: billItems,
         subtotal,
         tax,

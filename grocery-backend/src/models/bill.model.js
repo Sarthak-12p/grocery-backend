@@ -4,6 +4,13 @@ const billSchema = new mongoose.Schema(
     {
         customerName: String,
 
+        billNumber: {
+            type: String,
+            required: true,
+            unique: true,
+            index: true,
+        },
+
         items:[
             {
                 product:{
