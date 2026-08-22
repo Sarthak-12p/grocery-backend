@@ -10,6 +10,7 @@ import productRoutes from "./routes/product.routes.js";
 import expenseRoutes from "./routes/expense.routes.js";
 import dashboardRoutes from "./routes/dashboard.routes.js";
 import shopRoutes from "./routes/shop.routes.js";
+import reportRoutes from "./routes/report.routes.js";
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.use("/api/v1/bills", billRoutes);
 app.use("/api/v1/expenses" , expenseRoutes);
 app.use("/api/v1/dashboard", dashboardRoutes);
 app.use("/api/v1/shop", shopRoutes);
+app.use("/api/v1/reports", reportRoutes);
 
 app.get("/" ,(req,res) =>{
     res.json({

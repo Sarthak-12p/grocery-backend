@@ -18,7 +18,7 @@ const billSchema = new mongoose.Schema(
                     ref:"Product",
                 },
 
-                 quantity: {
+                quantity: {
                     type: Number,
                     required: true,
                     min: 1,
@@ -28,6 +28,16 @@ const billSchema = new mongoose.Schema(
                     type: Number,
                     required: true,
                     min: 0,
+                },
+                costprice:{
+                    type:Number,
+                    required:true,
+                    min:0
+                },
+                productName:{
+                    type:String,
+                    required:true,
+                    min:0
                 },
             },
 

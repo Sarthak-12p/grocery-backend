@@ -53,6 +53,8 @@ export const createBill = asyncHandler(async (req, res) => {
       product: product._id,
       quantity: item.quantity,
       sellingprice: product.sellingprice,
+      costprice: product.costprice,
+      productName:product.name,
     });
 
     product.quantity -= item.quantity;
