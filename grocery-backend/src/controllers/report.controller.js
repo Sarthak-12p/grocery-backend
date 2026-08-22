@@ -696,41 +696,6 @@ else {
 }
 
     /*
-        -------------------------
-        ADD SALES
-        -------------------------
-        */
-
-    bills.forEach((bill) => {
-      const date = new Date(bill.createdAt);
-
-      const key =
-        `${date.getFullYear()}-` +
-        `${String(date.getMonth() + 1).padStart(2, "0")}-` +
-        `${String(date.getDate()).padStart(2, "0")}`;
-
-      if (!dailySalesMap.has(key)) {
-        return;
-      }
-
-      let billRevenue = 0;
-
-      if (Array.isArray(bill.items)) {
-        bill.items.forEach((item) => {
-          const quantity = Number(item.quantity) || 0;
-
-          const sellingPrice = Number(item.sellingprice) || 0;
-
-          billRevenue += quantity * sellingPrice;
-        });
-      }
-
-      dailySalesMap.get(key).sales += billRevenue;
-    });
-
-    const dailySales = Array.from(dailySalesMap.values());
-
-    /*
 ============================================================
 8. BEST SELLING PRODUCTS
 ============================================================
